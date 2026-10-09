@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Unlock tips · Pitchline</title>
+    <meta
+      name="description"
+      content="Enter your weekly Pitchline access code to unlock European football tips."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Syne:wght@600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+  <body data-page="unlock">
+    <header class="site-header" style="position: relative; background: var(--pitch)">
+      <div class="container nav">
+        <a class="brand" href="index.html">Pitch<span>line</span></a>
+        <button class="nav-toggle" type="button" aria-expanded="false" aria-label="Menu">Menu</button>
+        <ul class="nav-links">
+          <li><a href="tips.html">Tips</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a class="nav-cta" href="unlock.html" aria-current="page">Unlock</a></li>
+        </ul>
+      </div>
+    </header>
+
+    <div class="page-hero">
+      <div class="container">
+        <p class="section-kicker">Members</p>
+        <h1>Enter this week’s code</h1>
+        <p>Tips stay private. Use the weekly access code we send you to unlock all leagues.</p>
+      </div>
+    </div>
+
+    <div class="container unlock-wrap">
+      <form class="unlock-form" id="unlock-form" novalidate>
+        <label for="access-code">Weekly access code</label>
+        <input
+          id="access-code"
+          name="code"
+          type="text"
+          autocomplete="one-time-code"
+          autocapitalize="characters"
+          spellcheck="false"
+          placeholder="e.g. PITCH-WEEK-41"
+          required
+        />
+        <p class="unlock-error" id="unlock-error" hidden>That code isn’t valid. Check this week’s message and try again.</p>
+        <button class="btn btn-primary" type="submit" id="unlock-submit">Unlock tips</button>
+      </form>
+      <p class="unlock-note">Code changes every week. Session lasts 7 days or until the code rotates.</p>
+    </div>
+
+    <footer class="site-footer">
+      <div class="container">
+        <div class="footer-legal">
+          <span><span class="age-badge">18+</span> Please gamble responsibly.</span>
+          <span>© 2026 Pitchline</span>
+        </div>
+      </div>
+    </footer>
+
+    <script src="js/app.js"></script>
+    <script>
+      (function () {
+        const form = document.getElementById("unlock-form");
+        const errorEl = document.getElementById("unlock-error");
+        const submit = document.getElementById("unlock-submit");
+        const next = new URLSearchParams(window.location.search).get("next") || "/tips.html";
+
+        fetch("/api/session")
+          .then((r) => r.json())
+          .then((data) => {
+            if (data.authenticated) window.location.replace(next);
+          })
+          .catch(() => {});
+
+        form.addEventListener("submit", async (e) => {
+          e.preventDefault();
+          errorEl.hidden = true;
+          submit.disabled = true;
+          submit.textContent = "Checking…";
+
+          try {
+            const code = document.getElementById("access-code").value.trim();
+            const res = await fetch("/api/unlock", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ code }),
+            });
+            if (!res.ok) {
+              errorEl.hidden = false;
+              submit.disabled = false;
+              submit.textContent = "Unlock tips";
+              return;
+            }
+            window.location.replace(next);
+          } catch {
+            errorEl.hidden = false;
+            submit.disabled = false;
+            submit.textContent = "Unlock tips";
+          }
+        });
+      })();
+    </script>
+  </body>
+</html>

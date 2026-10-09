@@ -723,6 +723,61 @@ input {
   letter-spacing: 0.04em;
 }
 
+/* —— Unlock —— */
+.unlock-wrap {
+  max-width: 28rem;
+  padding: 2.5rem 0 4.5rem;
+}
+
+.unlock-form {
+  display: grid;
+  gap: 0.75rem;
+  padding: 1.5rem;
+  background: var(--pitch-mid);
+  border: 1px solid var(--line-strong);
+}
+
+.unlock-form label {
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--fog);
+}
+
+.unlock-form input {
+  width: 100%;
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--line);
+  background: var(--ink);
+  color: #fff;
+  outline: none;
+}
+
+.unlock-form input:focus {
+  border-color: var(--lime);
+}
+
+.unlock-error {
+  margin: 0;
+  color: var(--danger);
+  font-size: 0.9rem;
+}
+
+.unlock-note {
+  margin: 1rem 0 0;
+  font-size: 0.85rem;
+  color: var(--fog);
+}
+
+.locked-panel {
+  padding: 2rem 0;
+  border-top: 1px solid var(--line);
+}
+
+.locked-panel .btn {
+  margin-top: 0.5rem;
+}
+
 /* —— 404 —— */
 .error-page {
   min-height: 70vh;

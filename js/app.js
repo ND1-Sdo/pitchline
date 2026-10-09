@@ -16,6 +16,20 @@
   });
 })();
 
+(function initLogout() {
+  const link = document.getElementById("logout-link");
+  if (!link) return;
+  link.addEventListener("click", async (e) => {
+    e.preventDefault();
+    try {
+      await fetch("/api/logout", { method: "POST", credentials: "same-origin" });
+    } catch {
+      /* ignore */
+    }
+    window.location.href = "/unlock.html";
+  });
+})();
+
 document.addEventListener("DOMContentLoaded", () => {
   const page = document.body.dataset.page;
   if (!window.PitchlineTips) return;

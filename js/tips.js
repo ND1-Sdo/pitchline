@@ -8,9 +8,25 @@ const LEAGUES = [
 ];
 
 async function loadTips() {
-  const res = await fetch("data/tips.json");
+  const res = await fetch("/api/tips", { credentials: "same-origin" });
+  if (res.status === 401) {
+    const next = encodeURIComponent(window.location.pathname + window.location.search);
+    window.location.replace(`/unlock.html?next=${next}`);
+    throw new Error("unauthorized");
+  }
   if (!res.ok) throw new Error("Could not load tips");
   return res.json();
+}
+
+function lockedHomeHtml() {
+  return `
+    <div class="locked-panel">
+      <p class="section-kicker">Members only</p>
+      <h2 class="detail-match" style="font-size:clamp(1.4rem,3vw,1.9rem)">Tips are locked</h2>
+      <p class="detail-summary">Enter this week’s access code to see featured picks and full analysis.</p>
+      <a class="btn btn-primary" href="unlock.html">Unlock with weekly code</a>
+    </div>
+  `;
 }
 
 function formatKickoff(iso) {
@@ -83,6 +99,15 @@ async function renderHome() {
   if (!featuredEl && !listEl) return;
 
   try {
+    const session = await fetch("/api/session", { credentials: "same-origin" }).then((r) => r.json());
+    if (!session.authenticated) {
+      if (featuredEl) featuredEl.innerHTML = lockedHomeHtml();
+      if (listEl) {
+        listEl.innerHTML = `<p class="empty-state">Unlock with your weekly code to browse tips. <a href="unlock.html">Enter code</a></p>`;
+      }
+      return;
+    }
+
     const tips = await loadTips();
     const featured = [...tips].sort((a, b) => b.confidence - a.confidence)[0];
     const latest = tips.slice(0, 6);
@@ -111,6 +136,8 @@ async function renderHome() {
       observeReveals(listEl);
     }
   } catch (err) {
+    if (err.message === "unauthorized") return;
+    if (featuredEl) featuredEl.innerHTML = lockedHomeHtml();
     if (listEl) listEl.innerHTML = `<p class="empty-state">Tips are temporarily unavailable.</p>`;
     console.error(err);
   }
